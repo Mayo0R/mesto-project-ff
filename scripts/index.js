@@ -6,10 +6,11 @@ const cardTemplate = document.querySelector("#card-template").content;
 
 // @todo: Функция создания карточки
 
-function addCard(name, link, del) {
-  let cardElement = cardTemplate.querySelector(".card").cloneNode(true);
+function createCard(name, link, del) {
+  const cardElement = cardTemplate.querySelector(".card").cloneNode(true);
   cardElement.querySelector(".card__title").textContent = name;
   cardElement.querySelector(".card__image").src = link;
+  cardElement.querySelector(".card__image").alt = name;
 
   const deleteButton = cardElement.querySelector(".card__delete-button");
   deleteButton.addEventListener("click", del);
@@ -20,12 +21,13 @@ function addCard(name, link, del) {
 // @todo: Функция удаления карточки
 
 function deleteCard(evt) {
-  const card_item = evt.target.closest(".card");
-  card_item.remove();
+  const cardItem = evt.target.closest(".card");
+  cardItem.remove();
 }
 
 // @todo: Вывести карточки на страницу
 
-for (let i = 0; i < initialCards.length; i++) {
-  list.append(addCard(initialCards[i].name, initialCards[i].link, deleteCard));
-}
+initialCards.forEach(function (item){
+  list.append(createCard(item.name, item.link, deleteCard));
+});
+
