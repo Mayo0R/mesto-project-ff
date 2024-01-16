@@ -1,7 +1,7 @@
 import '/src/pages/index.css'; // добавьте импорт главного файла стилей 
 import {initialCards} from './card.js';
 import {createCard,deleteCard, likeCard} from './cards.js';
-import {openModal, closeModal, overlay} from './modal.js';
+import {openModal, closeModal, overlay, closeModalCrossButton} from './modal.js';
 
 export const list = document.querySelector(".places__list");
 export const cardTemplate = document.querySelector("#card-template").content;
@@ -41,12 +41,14 @@ editButton.addEventListener('click', function(){
   inputName.value = profileTitle.textContent;
   inputDescription.value = profileDescription.textContent;
   popupEdit.addEventListener("click", overlay);
+  popupEdit.addEventListener("click", closeModalCrossButton);
 });
 
 //Слушание кнопки добавления карточки + закрытие
 buttonOpenPopupNewCard.addEventListener('click', function(){
   openModal(popupNewCard);
   popupNewCard.addEventListener("click", overlay);
+  popupNewCard.addEventListener("click", closeModalCrossButton);
 });
 
 //Слушание кнопки в редакторе профиля и при submit применение функции
@@ -62,6 +64,7 @@ export function openImage(name, link){
   photoPopupTypeImage.alt=name;
   openModal(popupTypeImage);
   popupTypeImage.addEventListener("click", overlay);
+  popupTypeImage.addEventListener("click", closeModalCrossButton);
 }
 
 //Функция редактирования профиля

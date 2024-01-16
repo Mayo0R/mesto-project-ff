@@ -2,9 +2,6 @@
 export function openModal(popup){
     popup.classList.add('popup_is-opened');
     document.addEventListener('keydown', closeEsc);
-    popup.querySelector('.popup__close').addEventListener('click', function(evt){
-      closeModal(popup);
-    });
   }  
 
 //Функция закрытия поп-апа
@@ -28,4 +25,9 @@ export function overlay(evt){
     }
   }
 
-
+//Функция закрытия по Крестику 
+export function closeModalCrossButton(evt){
+  if (evt.target.classList.contains('popup__close')) {
+    closeModal(document.querySelector('.popup_is-opened'));
+  }
+}
