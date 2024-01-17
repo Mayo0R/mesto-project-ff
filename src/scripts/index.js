@@ -40,16 +40,20 @@ editButton.addEventListener('click', function(){
   openModal(popupEdit);
   inputName.value = profileTitle.textContent;
   inputDescription.value = profileDescription.textContent;
-  popupEdit.addEventListener("click", overlay);
-  popupEdit.addEventListener("click", closeModalCrossButton);
 });
+
+//Обработчки Крестика и Оверлея для поп-апа редактирования профиля
+popupEdit.addEventListener("click", overlay);
+popupEdit.addEventListener("click", closeModalCrossButton);
 
 //Слушание кнопки добавления карточки + закрытие
 buttonOpenPopupNewCard.addEventListener('click', function(){
   openModal(popupNewCard);
-  popupNewCard.addEventListener("click", overlay);
-  popupNewCard.addEventListener("click", closeModalCrossButton);
 });
+
+//Обработчки Крестика и Оверлея для поп-апа создания новой карточки
+popupNewCard.addEventListener("click", overlay);
+popupNewCard.addEventListener("click", closeModalCrossButton);
 
 //Слушание кнопки в редакторе профиля и при submit применение функции
 profileForm.addEventListener('submit', editProfile); 
@@ -63,9 +67,11 @@ export function openImage(name, link){
   photoPopupTypeImage.src=link;
   photoPopupTypeImage.alt=name;
   openModal(popupTypeImage);
-  popupTypeImage.addEventListener("click", overlay);
-  popupTypeImage.addEventListener("click", closeModalCrossButton);
 }
+
+//Обработчки Крестика и Оверлея для поп-апа изображения
+popupTypeImage.addEventListener("click", overlay);
+popupTypeImage.addEventListener("click", closeModalCrossButton);
 
 //Функция редактирования профиля
 export function editProfile(evt) {
