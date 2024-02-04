@@ -31,3 +31,4 @@ export function closeModalCrossButton(evt){
     closeModal(document.querySelector('.popup_is-opened'));
   }
 }
+

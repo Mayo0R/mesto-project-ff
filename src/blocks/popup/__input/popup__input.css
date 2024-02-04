@@ -14,6 +14,15 @@
   margin-bottom: 0;
 }
 
+.form__input_type_error {
+  border-bottom: 1px solid red;
+}
+
+.form__input-error {
+  color: red;
+  font-size: 12px;
+}
+
 @media screen and (max-width: 568px) {
   .popup__title {
     font-size: 12px;
