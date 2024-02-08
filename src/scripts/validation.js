@@ -1,42 +1,42 @@
-import { cardNameInput, urlInput } from "./index.js";
-
 //ВАЛИДАЦИЯ Типовой блок
 
-const showInputError = (formElement, inputElement, errorMessage) => {
+const showInputError = (formElement, inputElement, errorMessage, config) => {
   const errorElement = formElement.querySelector(`.${inputElement.id}-error`);
-  inputElement.classList.add("form__input_type_error");
+  inputElement.classList.add(config.inputErrorClass);
   errorElement.textContent = errorMessage;
-  errorElement.classList.add("form__input-error_active");
+  errorElement.classList.add(config.errorClass);
 };
 
-const hideInputError = (formElement, inputElement) => {
+const hideInputError = (formElement, inputElement, config) => {
   const errorElement = formElement.querySelector(`.${inputElement.id}-error`);
-  inputElement.classList.remove("form__input_type_error");
-  errorElement.classList.remove("form__input-error_active");
+  inputElement.classList.remove(config.inputErrorClass);
+  errorElement.classList.remove(config.errorClass);
   errorElement.textContent = "";
 };
 
-const checkInputValidity = (formElement, inputElement) => {
+const checkInputValidity = (formElement, inputElement, config) => {
   if (inputElement.validity.patternMismatch) {
-    inputElement.setCustomValidity(
-      "Разрешены только латинские и кириллические буквы, знаки дефиса и пробелы."
-    );
-  } else {
+    inputElement.setCustomValidity(inputElement.dataset.errorMessage);
     inputElement.setCustomValidity("");
   }
 
   if (!inputElement.validity.valid) {
-    showInputError(formElement, inputElement, inputElement.validationMessage);
+    showInputError(
+      formElement,
+      inputElement,
+      inputElement.validationMessage,
+      config
+    );
   } else {
-    hideInputError(formElement, inputElement);
+    hideInputError(formElement, inputElement, config);
   }
 };
 
-const toggleButtonState = (inputList, buttonElement) => {
+const toggleButtonState = (inputList, buttonElement, config) => {
   if (hasInvalidInput(inputList)) {
-    buttonElement.disabled = true;
+    disableButton(buttonElement, true, config);
   } else {
-    buttonElement.disabled = false;
+    disableButton(buttonElement, false, config);
   }
 };
 
@@ -46,64 +46,42 @@ const hasInvalidInput = (inputList) => {
   });
 };
 
-const setEventListeners = (formElement) => {
-  const inputList = Array.from(formElement.querySelectorAll(".popup__input"));
-  const buttonElement = formElement.querySelector(".popup__button");
+const setEventListeners = (formElement, config) => {
+  const inputList = Array.from(
+    formElement.querySelectorAll(config.inputSelector)
+  );
+  const buttonElement = formElement.querySelector(config.submitButtonSelector);
   inputList.forEach((inputElement) => {
     inputElement.addEventListener("input", function () {
-      checkInputValidity(formElement, inputElement);
-      toggleButtonState(inputList, buttonElement);
+      checkInputValidity(formElement, inputElement, config);
+      toggleButtonState(inputList, buttonElement, config);
     });
   });
 };
 
-export const enableValidation = () => {
-  const formList = Array.from(document.querySelectorAll(".popup__form"));
+export const enableValidation = (config) => {
+  const formList = Array.from(document.querySelectorAll(config.formSelector));
   formList.forEach((formElement) => {
-    formElement.addEventListener("submit", function (evt) {
-      evt.preventDefault();
-    });
-    setEventListeners(formElement);
+    setEventListeners(formElement, config);
   });
 };
 
 //Функция очистки ошибок валидации popup'ов
-
-export function cleanErrorsProfile(popup) {
-  const spanList = Array.from(popup.querySelectorAll(".form__input-error"));
-  const inputList = Array.from(popup.querySelectorAll(".popup__input"));
-  const buttonList = Array.from(popup.querySelectorAll(".popup__button"));
-  spanList.forEach((item) => {
-    item.textContent = "";
-  });
-  inputList.forEach((item) => {
-    item.classList.remove("form__input_type_error");
-  });
-  buttonList.forEach((item) => {
-    item.disabled = false;
+export function clearValidation(popup, config) {
+  const inputList = Array.from(popup.querySelectorAll(config.inputSelector));
+  const button = popup.querySelector(config.submitButtonSelector);
+  inputList.forEach((input) => {
+    hideInputError(popup, input, config);
+    disableButton(button, true, config);
   });
 }
 
-//Функция деактивации/активации кнопки сохранить при разных ситуациях
-
-export function deactivateButtonNewCard(popup) {
-  const spanList = Array.from(
-    popup.querySelectorAll(".form__input-error_active")
-  );
-  const popupButton = popup.querySelector(".popup__button");
-  if (
-    spanList.length == 0 &&
-    cardNameInput.value == "" &&
-    urlInput.value == ""
-  ) {
-    popupButton.disabled = true;
-  } else if (
-    spanList.length == 0 &&
-    cardNameInput.value !== "" &&
-    urlInput.value !== ""
-  ) {
-    popupButton.disabled = false;
+export function disableButton(button, disabled, config) {
+  if (disabled == true) {
+    button.classList.add(config.inactiveButtonClass);
+    button.disabled = disabled;
   } else {
-    popupButton.disabled = true;
+    button.classList.remove(config.inactiveButtonClass);
+    button.disabled = disabled;
   }
 }

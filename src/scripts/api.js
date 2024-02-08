@@ -6,28 +6,25 @@ const config = {
   },
 };
 
+function getResponseData(res) {
+  if (res.ok) {
+    return res.json();
+  }
+  return Promise.reject(`Ошибка: ${res.status}`);
+}
+
 //Получаем данные о пользователе GET
 export const getUser = () => {
   return fetch(`${config.baseUrl}/users/me`, {
     headers: config.headers,
-  }).then((res) => {
-    if (res.ok) {
-      return res.json();
-    }
-    return Promise.reject(`Ошибка: ${res.status}`);
-  });
+  }).then((res) => getResponseData(res));
 };
 
 //Получаем данные о карточках GET
 export const getInitialCards = () => {
   return fetch(`${config.baseUrl}/cards`, {
     headers: config.headers,
-  }).then((res) => {
-    if (res.ok) {
-      return res.json();
-    }
-    return Promise.reject(`Ошибка: ${res.status}`);
-  });
+  }).then((res) => getResponseData(res));
 };
 
 //Отправляем данные о редактировании профиля
@@ -39,12 +36,7 @@ export const editUser = (profile) => {
       name: profile.name,
       about: profile.about,
     }),
-  }).then((res) => {
-    if (res.ok) {
-      return res.json();
-    }
-    return Promise.reject(`Ошибка: ${res.status}`);
-  });
+  }).then((res) => getResponseData(res));
 };
 
 //Создаем новую карточку и отправляем на сервер
@@ -56,12 +48,7 @@ export const newCard = (card) => {
       name: card.name,
       link: card.link,
     }),
-  }).then((res) => {
-    if (res.ok) {
-      return res.json();
-    }
-    return Promise.reject(`Ошибка: ${res.status}`);
-  });
+  }).then((res) => getResponseData(res));
 };
 
 //Удаляем карточку с сервера
@@ -69,12 +56,7 @@ export const delCard = (cardId) => {
   return fetch(`${config.baseUrl}/cards/${cardId}`, {
     method: "DELETE",
     headers: config.headers,
-  }).then((res) => {
-    if (res.ok) {
-      return res.json();
-    }
-    return Promise.reject(`Ошибка: ${res.status}`);
-  });
+  }).then((res) => getResponseData(res));
 };
 
 //Отправляем like на сервер
@@ -82,12 +64,7 @@ export const like = (cardId) => {
   return fetch(`${config.baseUrl}/cards/likes/${cardId}`, {
     method: "PUT",
     headers: config.headers,
-  }).then((res) => {
-    if (res.ok) {
-      return res.json();
-    }
-    return Promise.reject(`Ошибка: ${res.status}`);
-  });
+  }).then((res) => getResponseData(res));
 };
 
 //Отправляем dislike на сервер
@@ -95,12 +72,7 @@ export const dislike = (cardId) => {
   return fetch(`${config.baseUrl}/cards/likes/${cardId}`, {
     method: "DELETE",
     headers: config.headers,
-  }).then((res) => {
-    if (res.ok) {
-      return res.json();
-    }
-    return Promise.reject(`Ошибка: ${res.status}`);
-  });
+  }).then((res) => getResponseData(res));
 };
 
 //Отправляем данные о редактировании аватара профиля
@@ -111,10 +83,5 @@ export const editAvatar = (profile) => {
     body: JSON.stringify({
       avatar: profile.avatar,
     }),
-  }).then((res) => {
-    if (res.ok) {
-      return res.json();
-    }
-    return Promise.reject(`Ошибка: ${res.status}`);
-  });
+  }).then((res) => getResponseData(res));
 };

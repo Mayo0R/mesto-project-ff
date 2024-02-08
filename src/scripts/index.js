@@ -1,24 +1,18 @@
 import "/src/pages/index.css"; // добавьте импорт главного файла стилей
-import { createCard } from "./cards.js";
+import { createCard } from "./card.js";
 import {
   openModal,
   closeModal,
   overlay,
   closeModalCrossButton,
 } from "./modal.js";
-import {
-  enableValidation,
-  cleanErrorsProfile,
-  deactivateButtonNewCard,
-} from "./validation.js";
+import { enableValidation, clearValidation } from "./validation.js";
 import {
   getInitialCards,
   getUser,
   editUser,
   newCard,
   delCard,
-  like,
-  dislike,
   editAvatar,
 } from "./api.js";
 
@@ -27,7 +21,9 @@ export const cardTemplate = document.querySelector("#card-template").content;
 
 export const popupEdit = document.querySelector(".popup_type_edit"); //поп-ап редактирования профиля
 export const profileTitle = document.querySelector(".profile__title"); //находим имя в профиле
-export const profileDescription = document.querySelector(".profile__description"); //находим описание в профиле
+export const profileDescription = document.querySelector(
+  ".profile__description"
+); //находим описание в профиле
 const profileImage = document.querySelector(".profile__image"); //находим изображение профиля
 
 const profileForm = document.forms.edit_profile; //находим поп-ап форму edit_profile
@@ -41,13 +37,17 @@ export const photoPopupTypeImage = document.querySelector(".popup__image"); //к
 export const popupCaptionImage = document.querySelector(".popup__caption"); //класс поп-апа изображения для постановки значений
 
 export const popupNewCard = document.querySelector(".popup_type_new-card"); //поп-ап создания карточки
-export const cardNameInput = document.querySelector(".popup__input_type_card-name"); //name card внутри формы
+export const cardNameInput = document.querySelector(
+  ".popup__input_type_card-name"
+); //name card внутри формы
 export const urlInput = document.querySelector(".popup__input_type_url"); //url внутри формы
 const buttonOpenPopupNewCard = document.querySelector(".profile__add-button"); //кнопка создания карточки
 const cardElementNew = popupNewCard.querySelector(".popup__form"); //находим форму создания новой карточки
 const buttonLoadCard = cardElementNew.querySelector(".popup__button-load"); //кнопка Сохранение в форме создания новой карточки
 
-export const popupConfirmDelete = document.querySelector(".popup_type_confirm_delete"); //поп-ап подтверждение удаления карточки
+export const popupConfirmDelete = document.querySelector(
+  ".popup_type_confirm_delete"
+); //поп-ап подтверждение удаления карточки
 export const confirmDelete = popupConfirmDelete.querySelector(".popup__form"); //находим форму удаления карточки
 
 const popupEditAvatar = document.querySelector(".popup_type_edit_avatar"); //поп-ап редактирования изображения профиля
@@ -55,12 +55,21 @@ const editAvatarForm = popupEditAvatar.querySelector(".popup__form"); //нахо
 const urlAvatarInput = editAvatarForm.elements.link; //находим  url внутри формы редактирования аватара
 const buttonLoadAvatar = editAvatarForm.querySelector(".popup__button-load"); //кнопка Сохранение в форме изменения аватара
 
+const config = {
+  formSelector: ".popup__form",
+  inputSelector: ".popup__input",
+  submitButtonSelector: ".popup__button",
+  inactiveButtonClass: "popup__button_disabled",
+  inputErrorClass: "popup__input_type_error",
+  errorClass: "popup__error_visible",
+};
+
 //Слушание кнопки редактирование профиля + открытие и закрытие
 editButton.addEventListener("click", function () {
   openModal(popupEdit);
   inputName.value = profileTitle.textContent;
   inputDescription.value = profileDescription.textContent;
-  cleanErrorsProfile(popupEdit);
+  clearValidation(popupEdit, config);
 });
 
 //Обработчки Крестика и Оверлея для поп-апа редактирования профиля
@@ -70,17 +79,17 @@ popupEdit.addEventListener("click", closeModalCrossButton);
 //Слушание кнопки добавления карточки + закрытие
 buttonOpenPopupNewCard.addEventListener("click", function () {
   openModal(popupNewCard);
-  deactivateButtonNewCard(popupNewCard);
+  clearValidation(popupNewCard, config);
 });
 
 //Обработчки Крестика и Оверлея для поп-апа создания новой карточки
 popupNewCard.addEventListener("click", overlay);
 popupNewCard.addEventListener("click", closeModalCrossButton);
 
-//Слушание кнопки в редакторе профиля и при submit применение функции
+//Слушание формы редактирования профиля
 profileForm.addEventListener("submit", editProfile);
 
-//Слушание кнопки в новой карточке и при submit применение функции
+//Слушание формы создания новой карточки
 cardElementNew.addEventListener("submit", saveNewCard);
 
 //Функция открытия поп-апа для изображения с подстановкой link и name
@@ -97,7 +106,14 @@ popupTypeImage.addEventListener("click", closeModalCrossButton);
 
 //Запуск Валидации всех форм
 
-enableValidation();
+enableValidation({
+  formSelector: ".popup__form",
+  inputSelector: ".popup__input",
+  submitButtonSelector: ".popup__button",
+  inactiveButtonClass: "popup__button_disabled",
+  inputErrorClass: "popup__input_type_error",
+  errorClass: "popup__error_visible",
+});
 
 //API
 
@@ -117,9 +133,8 @@ Promise.all(promises)
         createCard(
           card.name,
           card.link,
-          deleteCard,
+          deleteCardCallback,
           openImage,
-          likeCard,
           card.likes,
           card._id,
           card.owner._id,
@@ -168,9 +183,8 @@ function saveNewCard(evt) {
         createCard(
           card.name,
           card.link,
-          deleteCard,
+          deleteCardCallback,
           openImage,
-          likeCard,
           card.likes,
           card._id,
           card.owner._id,
@@ -189,40 +203,37 @@ function saveNewCard(evt) {
 }
 
 // 5. Функция удаления карточки с API
-function deleteCard(card, cardId) {
-  delCard(cardId)
+
+popupConfirmDelete.addEventListener("click", overlay);
+popupConfirmDelete.addEventListener("click", closeModalCrossButton);
+let cardIdForDel;
+let cardElementForDel;
+
+export function deleteCardCallback(id, element) {
+  console.log(id);
+  openModal(popupConfirmDelete);
+  cardIdForDel = id;
+  cardElementForDel = element;
+}
+
+confirmDelete.addEventListener("submit", function (evt) {
+  evt.preventDefault();
+  deleteCard(cardIdForDel, cardElementForDel);
+  closeModal(popupConfirmDelete);
+});
+
+function deleteCard(id, element) {
+  delCard(id)
     .then((res) => {
-      res = card.remove();
+      console.log(res);
+      element.remove();
     })
     .catch((err) => {
       console.log(err); // выводим ошибку в консоль
     });
 }
 
-// 6. Функция лайка карточки с API
-function likeCard(cardId, likeButton, likeCounter) {
-  if (!likeButton.classList.contains("card__like-button_is-active")) {
-    like(cardId)
-      .then((res) => {
-        likeButton.classList.add("card__like-button_is-active");
-        likeCounter.textContent = Object.keys(res.likes).length;
-      })
-      .catch((err) => {
-        console.log(err); // выводим ошибку в консоль
-      });
-  } else {
-    dislike(cardId)
-      .then((res) => {
-        likeButton.classList.remove("card__like-button_is-active");
-        likeCounter.textContent = Object.keys(res.likes).length;
-      })
-      .catch((err) => {
-        console.log(err); // выводим ошибку в консоль
-      });
-  }
-}
-
-// 7. Слушаем наведение на изображение и меняем анимацию согласно макету
+// 6. Слушаем наведение на изображение и меняем анимацию согласно макету
 
 const imageAvatarHover = document.querySelector(".profile__image-hover"); //элемент редактирования при наведении
 
@@ -233,11 +244,11 @@ profileImage.addEventListener("mouseleave", function () {
   imageAvatarHover.style.display = "none";
 });
 
-// 8. Блок для редактирования изображения профиля + Функция редактирования изображения профиля
+// 7. Блок для редактирования изображения профиля + Функция редактирования изображения профиля
 
 profileImage.addEventListener("click", function () {
   openModal(popupEditAvatar);
-  deactivateButtonNewCard(popupEditAvatar);
+  clearValidation(popupEditAvatar, config);
 });
 
 popupEditAvatar.addEventListener("click", overlay);
@@ -265,7 +276,7 @@ function editProfileAvatar(evt) {
     });
 }
 
-// 9. Улучшенный UX всех форм
+// 8. Улучшенный UX всех форм
 
 function renderLoading(isLoading, button) {
   if (isLoading) {
