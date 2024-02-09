@@ -1,5 +1,5 @@
 import "/src/pages/index.css"; // добавьте импорт главного файла стилей
-import { createCard } from "./card.js";
+import { createCard, deleteCardCallback, cardIdForDel, cardElementForDel } from "./card.js";
 import {
   openModal,
   closeModal,
@@ -156,9 +156,9 @@ function editProfile(evt) {
   };
   renderLoading(true, buttonLoadEdit);
   editUser(data)
-    .then(() => {
-      profileTitle.textContent = inputName.value;
-      profileDescription.textContent = inputDescription.value;
+    .then((data) => {
+      profileTitle.textContent = data.name;
+      profileDescription.textContent = data.about;
       closeModal(popupEdit);
     })
     .catch((err) => {
@@ -206,27 +206,17 @@ function saveNewCard(evt) {
 
 popupConfirmDelete.addEventListener("click", overlay);
 popupConfirmDelete.addEventListener("click", closeModalCrossButton);
-let cardIdForDel;
-let cardElementForDel;
-
-export function deleteCardCallback(id, element) {
-  console.log(id);
-  openModal(popupConfirmDelete);
-  cardIdForDel = id;
-  cardElementForDel = element;
-}
 
 confirmDelete.addEventListener("submit", function (evt) {
   evt.preventDefault();
-  deleteCard(cardIdForDel, cardElementForDel);
-  closeModal(popupConfirmDelete);
+  deleteCard(cardIdForDel, cardElementForDel); 
 });
 
 function deleteCard(id, element) {
   delCard(id)
-    .then((res) => {
-      console.log(res);
+    .then(() => {
       element.remove();
+      closeModal(popupConfirmDelete);
     })
     .catch((err) => {
       console.log(err); // выводим ошибку в консоль

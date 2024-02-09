@@ -1,5 +1,6 @@
-import { cardTemplate } from "./index.js";
+import { cardTemplate, popupConfirmDelete} from "./index.js";
 import { like, dislike } from "./api.js";
+import { openModal } from "./modal.js";
 
 // @todo: Функция создания карточки
 export function createCard(
@@ -74,4 +75,14 @@ export function likeCard(cardId, likeButton, likeCounter) {
         console.log(err); // выводим ошибку в консоль
       });
   }
+}
+
+// Обработчик клика по иконке удаления карточки
+export let cardIdForDel;
+export let cardElementForDel;
+
+export function deleteCardCallback(id, element) {
+  openModal(popupConfirmDelete);
+  cardIdForDel = id;
+  cardElementForDel = element;
 }
